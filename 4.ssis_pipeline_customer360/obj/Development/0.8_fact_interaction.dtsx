@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/28/2026 2:48:38 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-PH4392I"
+  DTS:CreatorName="DESKTOP-PH4392I\Khutso"
+  DTS:DTSID="{DD45551F-78EA-4C78-98C5-DC2F939220F0}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="7177"
+  DTS:ObjectName="Package1"
+  DTS:PackageType="5"
+  DTS:VersionBuild="2"
+  DTS:VersionGUID="{CC37AA78-90F3-4A40-91C2-33CF84D0DA08}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\create_stg_fact_interaction"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{2C5ABF94-D026-4DAF-BB1E-039C01BCE34B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_stg_fact_interaction"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  CREATE STAGING FACT INTERACTION TABLE&#xA;  NO DATA CLEANING&#xA;========================================================*/&#xA;&#xA;USE stg_customer360;&#xA;GO&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.tables&#xA;    WHERE name = 'stg_fact_interaction'&#xA;      AND schema_id = SCHEMA_ID('dbo')&#xA;)&#xA;BEGIN&#xA;    CREATE TABLE dbo.stg_fact_interaction&#xA;    (&#xA;        client_number       NVARCHAR(50) NULL,&#xA;        account_number      NVARCHAR(50) NULL,&#xA;        province            NVARCHAR(100) NULL,&#xA;        city                NVARCHAR(100) NULL,&#xA;        channel             NVARCHAR(100) NULL,&#xA;        interaction_type    NVARCHAR(100) NULL,&#xA;        event_type          NVARCHAR(100) NULL,&#xA;        event_date          NVARCHAR(100) NULL,&#xA;        resolved_flag       NVARCHAR(100) NULL&#xA;    );&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_stg_fact_interaction"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{78859947-D7D9-48C4-93CD-2F8524084999}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_stg_fact_interaction"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;INSERT INTO dbo.stg_fact_interaction&#xA;(&#xA;    client_number,&#xA;    account_number,&#xA;    province,&#xA;    city,&#xA;    channel,&#xA;    interaction_type,&#xA;    event_type,&#xA;    event_date,&#xA;    resolved_flag&#xA;)&#xA;SELECT&#xA;    s.client_number,&#xA;    s.account_number,&#xA;    s.province,&#xA;    s.city,&#xA;    s.channel,&#xA;    s.interaction_type,&#xA;    s.event_type,&#xA;    s.event_date,&#xA;    s.resolved_flag&#xA;FROM dbo.stg_customer360_raw AS s&#xA;WHERE s.interaction_type IS NOT NULL;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{AE9E8AC2-A201-41BD-9BA3-DB54B407FE17}"
+      DTS:From="Package\create_stg_fact_interaction"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\load_stg_fact_interaction" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="203.2,41.6"
+          Id="Package\create_stg_fact_interaction"
+          TopLeft="57.4999968583386,45.0666663532787" />
+        <NodeLayout
+          Size="194.4,41.6"
+          Id="Package\load_stg_fact_interaction"
+          TopLeft="151.666658379966,123.933332471516" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="159.099996858339,86.6666663532787">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="74.9666615216271,37.2666661182377"
+              Start="0,0"
+              End="74.9666615216271,29.7666661182377">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,14.6333330591189" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,14.6333330591189"
+                    Point2="0,18.6333330591189"
+                    Point3="4,18.6333330591189" />
+                  <mssgle:LineSegment
+                    End="70.9666615216271,18.6333330591189" />
+                  <mssgle:CubicBezierSegment
+                    Point1="70.9666615216271,18.6333330591189"
+                    Point2="74.9666615216271,18.6333330591189"
+                    Point3="74.9666615216271,22.6333330591189" />
+                  <mssgle:LineSegment
+                    End="74.9666615216271,29.7666661182377" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="DESKTOP-PH4392I_LMSQLSERVER2025"
+  DTS:DTSID="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=DESKTOP-PH4392I\LMSQLSERVER2025;Initial Catalog=dwh_customer360;Provider=SQLOLEDB.1;Integrated Security=SSPI;Auto Translate=False;Application Name=SSIS-customer_360-{E3FBC964-B242-48C6-B932-4E487E43AA93}DESKTOP-PH4392I\LMSQLSERVER2025;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

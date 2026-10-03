@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/29/2026 10:18:40 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-PH4392I"
+  DTS:CreatorName="DESKTOP-PH4392I\Khutso"
+  DTS:DTSID="{A9F58013-4E9E-4559-AB2D-D7DDF0EFC56C}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="7177"
+  DTS:ObjectName="Package1"
+  DTS:PackageType="5"
+  DTS:VersionBuild="2"
+  DTS:VersionGUID="{783B794B-50FC-4190-92F3-CD65C3707D35}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\create_schemas"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{7E5F7E05-BB98-4A7A-9DAB-B107DE8CE3AF}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_schemas"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;-- Create staging schema&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.schemas&#xA;    WHERE name = 'stg_customer360'&#xA;)&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA stg_customer360 ');&#xA;END;&#xA;GO&#xA;&#xA;-- Create data warehouse schema&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.schemas&#xA;    WHERE name = 'dwh_customer360'&#xA;)&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA dwh_customer360');&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\raw_data"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{e75d8c0e-cbe5-4226-abd8-61464c9b1f71}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="raw_data"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE [stg_customer360]&#xA;GO&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    &#xA;    SELECT 1&#xA;    FROM sys.tables&#xA;    WHERE name = 'stg_customer360_raw'&#xA;      AND schema_id = SCHEMA_ID('dbo')&#xA;)&#xA;BEGIN&#xA;&#xA;CREATE TABLE [dbo].[stg_customer360_raw](&#xA; [client_number] [nvarchar](50) NOT NULL,&#xA; [first_name] [nvarchar](50) NOT NULL,&#xA; [last_name] [nvarchar](50) NOT NULL,&#xA; [email] [nvarchar](50) NULL,&#xA; [mobile_number] [nvarchar](50) NULL,&#xA; [date_of_birth] [datetime2](7) NOT NULL,&#xA; [gender] [nvarchar](50) NULL,&#xA; [province] [nvarchar](50) NOT NULL,&#xA; [city] [nvarchar](50) NOT NULL,&#xA; [signup_date] [datetime2](7) NOT NULL,&#xA; [event_type] [nvarchar](50) NOT NULL,&#xA; [event_date] [datetime2](7) NOT NULL,&#xA; [account_number] [nvarchar](50) NULL,&#xA; [product_type] [nvarchar](50) NULL,&#xA; [account_status] [nvarchar](50) NULL,&#xA; [credit_limit] [nvarchar](50) NULL,&#xA; [loan_amount] [int] NULL,&#xA; [account_balance] [nvarchar](50) NULL,&#xA; [channel] [nvarchar](50) NULL,&#xA; [interaction_type] [nvarchar](50) NULL,&#xA; [resolved_flag] [nvarchar](50) NULL,&#xA; [transaction_type] [nvarchar](50) NULL,&#xA; [amount] [nvarchar](50) NULL&#xA;) ON [PRIMARY]&#xA;END&#xA;GO&#xA;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{1B1E07BC-7464-42F0-B0E5-9BFB61E9BD58}"
+      DTS:From="Package\raw_data"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\create_schemas" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="120.8,41.6"
+          Id="Package\raw_data"
+          TopLeft="94.9999948094291,42.4666663713588" />
+        <NodeLayout
+          Size="154.4,41.6"
+          Id="Package\create_schemas"
+          TopLeft="180.833323453036,129.133332435356" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="155.399994809429,84.0666663713588">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="107.833328643607,45.0666660639975"
+              Start="0,0"
+              End="107.833328643607,37.5666660639975">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.5333330319987" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.5333330319987"
+                    Point2="0,22.5333330319987"
+                    Point3="4,22.5333330319987" />
+                  <mssgle:LineSegment
+                    End="103.833328643607,22.5333330319987" />
+                  <mssgle:CubicBezierSegment
+                    Point1="103.833328643607,22.5333330319987"
+                    Point2="107.833328643607,22.5333330319987"
+                    Point3="107.833328643607,26.5333330319987" />
+                  <mssgle:LineSegment
+                    End="107.833328643607,37.5666660639975" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

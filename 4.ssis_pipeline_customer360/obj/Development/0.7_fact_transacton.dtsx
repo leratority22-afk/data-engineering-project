@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/28/2026 1:22:04 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-PH4392I"
+  DTS:CreatorName="DESKTOP-PH4392I\Khutso"
+  DTS:DTSID="{492E21BC-362E-4E6D-881B-0898C3B05746}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="7177"
+  DTS:ObjectName="0 7_fact_transacton"
+  DTS:PackageType="5"
+  DTS:VersionBuild="5"
+  DTS:VersionGUID="{2DCE59CC-3D6C-419C-A9CD-750620E64F32}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\create_dwh_fact_transaction"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{0467DD4F-8C93-4620-918C-B1A7A6DAFA68}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_dwh_fact_transaction"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  CREATE DWH FACT TRANSACTION&#xA;========================================================*/&#xA;&#xA;USE dwh_customer360;&#xA;GO&#xA;&#xA;IF OBJECT_ID('dbo.dwh_fact_transaction', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE dbo.dwh_fact_transaction&#xA;    (&#xA;        transaction_key       INT IDENTITY(1,1) PRIMARY KEY,&#xA;&#xA;        client_key            INT NULL,&#xA;        account_key           INT NULL,&#xA;        location_key          INT NULL,&#xA;        transaction_type_key  INT NULL,&#xA;&#xA;        event_date             DATE NULL,&#xA;        amount                 DECIMAL(18,2) NULL,&#xA;        account_balance       DECIMAL(18,2) NULL&#xA;    );&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\create_stg_fact_transaction"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{CB44C0B7-0E05-41CB-9745-C486ED33E26F}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_stg_fact_transaction"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  CREATE STAGING FACT TRANSACTION TABLE&#xA;  NO DATA CLEANING&#xA;========================================================*/&#xA;&#xA;USE stg_customer360;&#xA;GO&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.tables&#xA;    WHERE name = 'stg_fact_transaction'&#xA;      AND schema_id = SCHEMA_ID('dbo')&#xA;)&#xA;BEGIN&#xA;    CREATE TABLE dbo.stg_fact_transaction&#xA;    (&#xA;        client_number       NVARCHAR(50) NULL,&#xA;        account_number      NVARCHAR(50) NULL,&#xA;        province            NVARCHAR(100) NULL,&#xA;        city                NVARCHAR(100) NULL,&#xA;        channel             NVARCHAR(100) NULL,&#xA;        transaction_type    NVARCHAR(100) NULL,&#xA;        event_date          NVARCHAR(100) NULL,&#xA;        amount              NVARCHAR(100) NULL,&#xA;        account_balance     NVARCHAR(100) NULL&#xA;    );&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_dwh_fact_transaction"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{EE433900-1209-4ECE-99B2-354BADB5AA71}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_dwh_fact_transaction"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="INSERT INTO dbo.dwh_fact_transaction&#xA;(&#xA;    client_key,&#xA;    account_key,&#xA;    location_key,&#xA;    transaction_type_key,&#xA;    event_date,&#xA;    amount,&#xA;    account_balance&#xA;)&#xA;SELECT DISTINCT&#xA;&#xA;    c.client_key,&#xA;&#xA;    a.account_key,&#xA;&#xA;    l.location_key,&#xA;&#xA;    tt.transaction_type_key,&#xA;&#xA;    TRY_CONVERT&#xA;    (&#xA;        DATE,&#xA;        NULLIF(LTRIM(RTRIM(s.event_date)), '')&#xA;    ) AS event_date,&#xA;&#xA;    TRY_CONVERT&#xA;    (&#xA;        DECIMAL(18,2),&#xA;        NULLIF(LTRIM(RTRIM(s.amount)), '')&#xA;    ) AS amount,&#xA;&#xA;    TRY_CONVERT&#xA;    (&#xA;        DECIMAL(18,2),&#xA;        NULLIF(LTRIM(RTRIM(s.account_balance)), '')&#xA;    ) AS account_balance&#xA;&#xA;FROM dwh_customer360.dbo.dwh_fact_transaction AS s&#xA;&#xA;/* CLIENT */&#xA;LEFT JOIN dbo.dwh_dim_client AS c&#xA;    ON c.client_number =&#xA;       NULLIF(LTRIM(RTRIM(s.client_number)), '')&#xA;&#xA;/* ACCOUNT */&#xA;LEFT JOIN dbo.dwh_dim_account AS a&#xA;    ON a.account_number =&#xA;       NULLIF(LTRIM(RTRIM(s.account_number)), '')&#xA;&#xA;/* LOCATION */&#xA;LEFT JOIN dbo.dwh_dim_location AS l&#xA;    ON ISNULL(l.province, '') =&#xA;       ISNULL(NULLIF(LTRIM(RTRIM(s.province)), ''), '')&#xA;   AND&#xA;       ISNULL(l.city, '') =&#xA;       ISNULL(NULLIF(LTRIM(RTRIM(s.city)), ''), '')&#xA;&#xA;/* TRANSACTION TYPE */&#xA;LEFT JOIN dbo.dwh_dim_transaction_type AS tt&#xA;    ON tt.transaction_type =&#xA;       NULLIF(LTRIM(RTRIM(s.transaction_type)), '')&#xA;&#xA;WHERE&#xA;    NULLIF(LTRIM(RTRIM(s.transaction_type)), '') IS NOT NULL&#xA;&#xA;    /* Prevent duplicate fact records */&#xA;    AND NOT EXISTS&#xA;    (&#xA;        SELECT 1&#xA;        FROM dbo.dwh_fact_transaction AS f&#xA;        WHERE ISNULL(f.client_key, -1) =&#xA;              ISNULL(c.client_key, -1)&#xA;&#xA;          AND ISNULL(f.account_key, -1) =&#xA;              ISNULL(a.account_key, -1)&#xA;&#xA;          AND ISNULL(f.location_key, -1) =&#xA;              ISNULL(l.location_key, -1)&#xA;&#xA;          AND ISNULL(f.transaction_type_key, -1) =&#xA;              ISNULL(tt.transaction_type_key, -1)&#xA;&#xA;          AND ISNULL(f.event_date, '19000101') =&#xA;              ISNULL&#xA;              (&#xA;                  TRY_CONVERT&#xA;                  (&#xA;                      DATE,&#xA;                      NULLIF(LTRIM(RTRIM(s.event_date)), '')&#xA;                  ),&#xA;                  '19000101'&#xA;              )&#xA;&#xA;          AND ISNULL(f.amount, 0) =&#xA;              ISNULL&#xA;              (&#xA;                  TRY_CONVERT&#xA;                  (&#xA;                      DECIMAL(18,2),&#xA;                      NULLIF(LTRIM(RTRIM(s.amount)), '')&#xA;                  ),&#xA;                  0&#xA;              )&#xA;&#xA;          AND ISNULL(f.account_balance, 0) =&#xA;              ISNULL&#xA;              (&#xA;                  TRY_CONVERT&#xA;                  (&#xA;                      DECIMAL(18,2),&#xA;                      NULLIF(LTRIM(RTRIM(s.account_balance)), '')&#xA;                  ),&#xA;                  0&#xA;              )&#xA;    );&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_stg_fact_transaction"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{C3A60DB7-5AF6-4195-BAB2-09CCCCCCFB18}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_stg_fact_transaction"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;INSERT INTO dbo.stg_fact_transaction&#xA;(&#xA;    client_number,&#xA;    account_number,&#xA;    province,&#xA;    city,&#xA;    channel,&#xA;    transaction_type,&#xA;    event_date,&#xA;    amount,&#xA;    account_balance&#xA;)&#xA;SELECT&#xA;    s.client_number,&#xA;    s.account_number,&#xA;    s.province,&#xA;    s.city,&#xA;    s.channel,&#xA;    s.transaction_type,&#xA;    s.event_date,&#xA;    s.amount,&#xA;    s.account_balance&#xA;FROM dbo.stg_customer360_raw AS s&#xA;WHERE s.transaction_type IS NOT NULL;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{CA098E90-C98D-4D5F-AAAB-AED135EC2071}"
+      DTS:From="Package\create_stg_fact_transaction"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\load_stg_fact_transaction" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{2183056E-0C1C-46F5-87DF-4A473B748920}"
+      DTS:From="Package\load_stg_fact_transaction"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\create_dwh_fact_transaction" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{2598F748-1A60-4B34-84EC-508C36DCC719}"
+      DTS:From="Package\create_dwh_fact_transaction"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\load_dwh_fact_transaction" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="206.4,41.6"
+          Id="Package\create_stg_fact_transaction"
+          TopLeft="104.166660975251,44.1999996926387" />
+        <NodeLayout
+          Size="196.8,41.6"
+          Id="Package\load_stg_fact_transaction"
+          TopLeft="219.999987979731,132.599999077916" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="207.366660975251,85.7999996926387">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="111.033327004479,46.7999993852774"
+              Start="0,0"
+              End="111.033327004479,39.2999993852774">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,19.3999996926387" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,19.3999996926387"
+                    Point2="0,23.3999996926387"
+                    Point3="4,23.3999996926387" />
+                  <mssgle:LineSegment
+                    End="107.033327004479,23.3999996926387" />
+                  <mssgle:CubicBezierSegment
+                    Point1="107.033327004479,23.3999996926387"
+                    Point2="111.033327004479,23.3999996926387"
+                    Point3="111.033327004479,27.3999996926387" />
+                  <mssgle:LineSegment
+                    End="111.033327004479,39.2999993852774" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="211.2,41.6"
+          Id="Package\create_dwh_fact_transaction"
+          TopLeft="310.83331635015,207.999998553594" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="318.399987979731,174.199999077916">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="98.033328370419,33.7999994756779"
+              Start="0,0"
+              End="98.033328370419,26.2999994756779">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,12.8999997378389" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,12.8999997378389"
+                    Point2="0,16.8999997378389"
+                    Point3="4,16.8999997378389" />
+                  <mssgle:LineSegment
+                    End="94.033328370419,16.8999997378389" />
+                  <mssgle:CubicBezierSegment
+                    Point1="94.033328370419,16.8999997378389"
+                    Point2="98.033328370419,16.8999997378389"
+                    Point3="98.033328370419,20.8999997378389" />
+                  <mssgle:LineSegment
+                    End="98.033328370419,26.2999994756779" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="202.4,41.6"
+          Id="Package\load_dwh_fact_transaction"
+          TopLeft="399.999978144965,291.199997975032" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="416.43331635015,249.599998553594">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="84.7666617948151,41.5999994214376"
+              Start="0,0"
+              End="84.7666617948151,34.0999994214376">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.7999997107188" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.7999997107188"
+                    Point2="0,20.7999997107188"
+                    Point3="4,20.7999997107188" />
+                  <mssgle:LineSegment
+                    End="80.7666617948151,20.7999997107188" />
+                  <mssgle:CubicBezierSegment
+                    Point1="80.7666617948151,20.7999997107188"
+                    Point2="84.7666617948151,20.7999997107188"
+                    Point3="84.7666617948151,24.7999997107188" />
+                  <mssgle:LineSegment
+                    End="84.7666617948151,34.0999994214376" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

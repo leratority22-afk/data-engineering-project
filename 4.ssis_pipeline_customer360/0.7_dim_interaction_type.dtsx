@@ -1,0 +1,249 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/22/2026 11:50:49 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-PH4392I"
+  DTS:CreatorName="DESKTOP-PH4392I\Khutso"
+  DTS:DTSID="{432DA92E-FF02-427B-8F15-FDE13C4A284D}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="7177"
+  DTS:ObjectName="Package1"
+  DTS:PackageType="5"
+  DTS:VersionBuild="8"
+  DTS:VersionGUID="{53B3E6DE-EB16-4823-B35C-2CD0113DB488}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\create_dim_interaction_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{BC481698-B02B-4DF1-BC47-5DEBBB83F71B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_dim_interaction_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  3. CREATE DIM_INTERACTION_TYPE&#xA;========================================================*/&#xA;&#xA;IF OBJECT_ID('dbo.dwh_dim_interaction_type', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE dbo.dwh_dim_interaction_type&#xA;    (&#xA;        interaction_type_key INT IDENTITY(1,1) PRIMARY KEY,&#xA;&#xA;        interaction_type NVARCHAR(100) NULL,&#xA;&#xA;        CONSTRAINT UQ_dim_interaction_type&#xA;            UNIQUE (interaction_type)&#xA;    );&#xA;END;&#xA;GO&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\create_stg_interaction_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{66923F27-7813-4571-AF09-71396B96E3E7}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_stg_interaction_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.tables&#xA;    WHERE name = 'stg_dim_interaction_type'&#xA;      AND schema_id = SCHEMA_ID('dbo')&#xA;)&#xA;BEGIN&#xA;    CREATE TABLE dbo.stg_dim_interaction_type&#xA;    (&#xA;      interaction_type   NVARCHAR(100) NULL,&#xA;    );&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_dim_interaction_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{9EEB15E5-6880-4712-97BA-4A4C2A01005C}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_dim_interaction_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  4. LOAD INTERACTION TYPE FROM STAGING&#xA;     &#xA;========================================================*/&#xA;&#xA;INSERT INTO dbo.dwh_dim_interaction_type&#xA;(&#xA;    interaction_type&#xA;)&#xA;SELECT DISTINCT&#xA;&#xA;    NULLIF(&#xA;        LTRIM(RTRIM(s.interaction_type)),&#xA;        ''&#xA;    ) AS interaction_type&#xA;&#xA;FROM stg_customer360.dbo.stg_dim_interaction_type AS s&#xA;&#xA;WHERE&#xA;    /* Do not load blank interaction types */&#xA;    NULLIF(&#xA;        LTRIM(RTRIM(s.interaction_type)),&#xA;        ''&#xA;    ) IS NOT NULL&#xA;&#xA;    /* Prevent duplicate interaction types */&#xA;    AND NOT EXISTS&#xA;    (&#xA;        SELECT 1&#xA;        FROM dbo.dwh_dim_interaction_type AS d&#xA;        WHERE d.interaction_type =&#xA;              NULLIF(&#xA;                  LTRIM(RTRIM(s.interaction_type)),&#xA;                  ''&#xA;              )&#xA;    );&#xA;GO&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_stg_dim_interaction_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{0EE60335-6DD1-4CA7-9076-EF7C05F301F2}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_stg_dim_interaction_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;INSERT INTO dbo.stg_dim_interaction_type&#xA;(&#xA;    interaction_type&#xA;)&#xA;SELECT&#xA;&#xA;   s.interaction_type&#xA;FROM [stg_customer360].[dbo].[stg_customer360_raw]AS s&#xA;WHERE NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM dbo.stg_dim_interaction_type AS d&#xA;    WHERE d.interaction_type = s.interaction_type&#xA;);&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{E12F0D0C-A81E-442C-91C7-085E690D82E6}"
+      DTS:From="Package\create_stg_interaction_type"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\load_stg_dim_interaction_type" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{3B4EA3C9-F322-408E-9EE9-723A5229314E}"
+      DTS:From="Package\load_stg_dim_interaction_type"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\create_dim_interaction_type" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{6AC05EE1-7DF8-449A-AFFF-20EF7FE6CFFD}"
+      DTS:From="Package\create_dim_interaction_type"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\load_dim_interaction_type" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="206.4,41.6"
+          Id="Package\create_stg_interaction_type"
+          TopLeft="28.3333317852681,28.5999998011194" />
+        <NodeLayout
+          Size="261.6,41.6"
+          Id="Package\load_stg_dim_interaction_type"
+          TopLeft="83.3333287802009,94.4666660097576" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="131.533331785268,70.1999998011194">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="82.5999969949328,24.2666662086382"
+              Start="0,0"
+              End="82.5999969949328,16.7666662086382">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,8.1333331043191" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,8.1333331043191"
+                    Point2="0,12.1333331043191"
+                    Point3="4,12.1333331043191" />
+                  <mssgle:LineSegment
+                    End="78.5999969949328,12.1333331043191" />
+                  <mssgle:CubicBezierSegment
+                    Point1="78.5999969949328,12.1333331043191"
+                    Point2="82.5999969949328,12.1333331043191"
+                    Point3="82.5999969949328,16.1333331043191" />
+                  <mssgle:LineSegment
+                    End="82.5999969949328,16.7666662086382" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="228,41.6"
+          Id="Package\create_dim_interaction_type"
+          TopLeft="173.333323862818,165.533332182235" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="214.133328780201,136.066666009758">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="73.199995082617,29.4666661724775"
+              Start="0,0"
+              End="73.199995082617,21.9666661724775">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,10.7333330862388" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,10.7333330862388"
+                    Point2="0,14.7333330862388"
+                    Point3="4,14.7333330862388" />
+                  <mssgle:LineSegment
+                    End="69.199995082617,14.7333330862388" />
+                  <mssgle:CubicBezierSegment
+                    Point1="69.199995082617,14.7333330862388"
+                    Point2="73.199995082617,14.7333330862388"
+                    Point3="73.199995082617,18.7333330862388" />
+                  <mssgle:LineSegment
+                    End="73.199995082617,21.9666661724775" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="200,41.6"
+          Id="Package\load_dim_interaction_type"
+          TopLeft="337.499981559814,234.866665033433" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="287.333323862818,207.133332182235">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="150.166657696996,27.7333328511981"
+              Start="0,0"
+              End="150.166657696996,20.2333328511981">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,9.86666642559905" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,9.86666642559905"
+                    Point2="0,13.866666425599"
+                    Point3="4,13.866666425599" />
+                  <mssgle:LineSegment
+                    End="146.166657696996,13.866666425599" />
+                  <mssgle:CubicBezierSegment
+                    Point1="146.166657696996,13.866666425599"
+                    Point2="150.166657696996,13.866666425599"
+                    Point3="150.166657696996,17.866666425599" />
+                  <mssgle:LineSegment
+                    End="150.166657696996,20.2333328511981" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

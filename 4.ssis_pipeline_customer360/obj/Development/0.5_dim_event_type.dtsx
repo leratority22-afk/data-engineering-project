@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/22/2026 11:45:17 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="DESKTOP-PH4392I"
+  DTS:CreatorName="DESKTOP-PH4392I\Khutso"
+  DTS:DTSID="{B419FE12-84D8-49E1-8ED6-F3C05024957B}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="7177"
+  DTS:ObjectName="Package1"
+  DTS:PackageType="5"
+  DTS:VersionBuild="3"
+  DTS:VersionGUID="{53BC1345-1FD3-4A8C-AF01-2B0C9F742E95}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\create_dim_event_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{004EF71B-BC2C-4172-9A27-3BDF359A9D07}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_dim_event_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  3. CREATE DIM_EVENT_TYPE&#xA;========================================================*/&#xA;&#xA;IF OBJECT_ID('dbo.dwh_dim_event_type', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE dbo.dwh_dim_event_type&#xA;    (&#xA;        event_type_key INT IDENTITY(1,1) PRIMARY KEY,&#xA;&#xA;        event_type NVARCHAR(100) NULL,&#xA;&#xA;        CONSTRAINT UQ_dim_event_type&#xA;            UNIQUE (event_type)&#xA;    );&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\create_stg_dim_event_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{204881a8-b5ca-4881-b3e6-6c48c6f1ab7f}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="create_stg_dim_event_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.tables&#xA;    WHERE name = 'stg_dim_event_type'&#xA;      AND schema_id = SCHEMA_ID('dbo')&#xA;)&#xA;BEGIN&#xA;    CREATE TABLE dbo.stg_dim_event_type&#xA;    (&#xA;         event_type         NVARCHAR(100) NULL,&#xA;        event_date         DATE NULL,&#xA;      &#xA;    );&#xA;END;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_dim_event_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E2C2E2B0-DBAA-40FD-BC12-37F0178EDB8D}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_dim_event_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="/*========================================================&#xA;  4. LOAD EVENT TYPE FROM STAGING&#xA;     &#xA; &#xA;========================================================*/&#xA;&#xA;INSERT INTO dbo.dwh_dim_event_type&#xA;(&#xA;    event_type&#xA;)&#xA;SELECT DISTINCT&#xA;&#xA;    NULLIF(&#xA;        LTRIM(RTRIM(s.event_type)),&#xA;        ''&#xA;    ) AS event_type&#xA;&#xA;FROM stg_customer360.dbo.stg_dim_event_type AS s&#xA;&#xA;WHERE&#xA;    /* Do not load blank event types */&#xA;    NULLIF(&#xA;        LTRIM(RTRIM(s.event_type)),&#xA;        ''&#xA;    ) IS NOT NULL&#xA;&#xA;    /* Prevent duplicate event types */&#xA;    AND NOT EXISTS&#xA;    (&#xA;        SELECT 1&#xA;        FROM dbo.dwh_dim_event_type AS d&#xA;        WHERE d.event_type =&#xA;              NULLIF(&#xA;                  LTRIM(RTRIM(s.event_type)),&#xA;                  ''&#xA;              )&#xA;    );&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\load_stg_dim_event_type"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{13618cf8-a7a0-4a92-8034-9b03b10141fc}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="load_stg_dim_event_type"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{E3FBC964-B242-48C6-B932-4E487E43AA93}"
+          SQLTask:SqlStatementSource="USE stg_customer360;&#xA;GO&#xA;&#xA;INSERT INTO dbo.stg_dim_event_type&#xA;(&#xA;   event_type&#xA;      ,event_date&#xA;)&#xA;SELECT&#xA;  s.event_type&#xA;      ,s.event_date&#xA;FROM [stg_customer360].[dbo].[stg_customer360_raw]AS s&#xA;WHERE NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM dbo.stg_dim_event_type AS d&#xA;    WHERE d.event_type = s.event_type&#xA;);&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{91B29426-00A4-423A-8237-E7ADE244E85F}"
+      DTS:From="Package\load_stg_dim_event_type"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\create_dim_event_type" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{73DD5E4F-A764-4B56-9DB8-8C0CBDB29D8C}"
+      DTS:From="Package\create_dim_event_type"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\load_dim_event_type" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 8]"
+      DTS:CreationName=""
+      DTS:DTSID="{5bcf4208-cb90-4ed1-bc2f-e80de9083581}"
+      DTS:From="Package\create_stg_dim_event_type"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 8"
+      DTS:To="Package\load_stg_dim_event_type" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="206.4,41.6"
+          Id="Package\create_stg_dim_event_type"
+          TopLeft="65.8333297363591,56.3333329415979" />
+        <NodeLayout
+          Size="196.8,41.6"
+          Id="Package\load_stg_dim_event_type"
+          TopLeft="135.238087849012,139.904760931881" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 8]"
+          TopLeft="169.033329736359,97.9333329415979">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="64.6047581126529,41.9714279902828"
+              Start="0,0"
+              End="64.6047581126529,34.4714279902828">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,16.9857139951414" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,16.9857139951414"
+                    Point2="0,20.9857139951414"
+                    Point3="4,20.9857139951414" />
+                  <mssgle:LineSegment
+                    End="60.6047581126529,20.9857139951414" />
+                  <mssgle:CubicBezierSegment
+                    Point1="60.6047581126529,20.9857139951414"
+                    Point2="64.6047581126529,20.9857139951414"
+                    Point3="64.6047581126529,24.9857139951414" />
+                  <mssgle:LineSegment
+                    End="64.6047581126529,34.4714279902828" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="194.4,41.6"
+          Id="Package\create_dim_event_type"
+          TopLeft="192.499989482264,211.466665196154" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="233.638087849012,181.504760931881">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="56.0619016332522,29.9619042642731"
+              Start="0,0"
+              End="56.0619016332522,22.4619042642731">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,10.9809521321366" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,10.9809521321366"
+                    Point2="0,14.9809521321366"
+                    Point3="4,14.9809521321366" />
+                  <mssgle:LineSegment
+                    End="52.0619016332522,14.9809521321366" />
+                  <mssgle:CubicBezierSegment
+                    Point1="52.0619016332522,14.9809521321366"
+                    Point2="56.0619016332522,14.9809521321366"
+                    Point3="56.0619016332522,18.9809521321366" />
+                  <mssgle:LineSegment
+                    End="56.0619016332522,22.4619042642731" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="177.6,41.6"
+          Id="Package\load_dim_event_type"
+          TopLeft="275.833318262465,284.266664689912" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="289.699989482264,253.066665196154">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="68.5333287802009,31.199999493758"
+              Start="0,0"
+              End="68.5333287802009,23.699999493758">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,11.599999746879" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,11.599999746879"
+                    Point2="0,15.599999746879"
+                    Point3="4,15.599999746879" />
+                  <mssgle:LineSegment
+                    End="64.5333287802009,15.599999746879" />
+                  <mssgle:CubicBezierSegment
+                    Point1="64.5333287802009,15.599999746879"
+                    Point2="68.5333287802009,15.599999746879"
+                    Point3="68.5333287802009,19.599999746879" />
+                  <mssgle:LineSegment
+                    End="68.5333287802009,23.699999493758" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>
